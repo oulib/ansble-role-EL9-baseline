@@ -1,0 +1,48 @@
+---
+# tasks file for OULibOps.EL9-baseline
+
+
+# Ensure that EPEL is enabled
+
+# sudo dnf config-manager --set-enabled crb
+- name: Ensure the crb repository is enabled
+  ansible.builtin.shell:
+    cmd: dnf config-manager --set-enabled crb  -y
+  become: true
+
+# sudo dnf install epel-release epel-next-release
+- name: Make sure EPEL is enabled
+  ansible.builtin.dnf:
+    name:
+      - epel-release
+      - epel-next-release
+  become: true
+
+- name: Install basic tools
+  ansible.builtin.dnf:
+    name:
+      - vim
+      - tree
+      - htop
+      - ack
+      - curl
+      - wget
+      - tmux
+    state: present
+  become: true
+
+- name: Install AWS tools
+  ansible.builtin.dnf:
+    name:
+      - awscli2
+    state: present
+  become: true
+
+
+
+- name: Set ec2 hostname based on tag
+  ansible.builtin.hostname:
+    name: "{{ tags.Name }}"
+    use: systemd
+  become: true
+  when: ( tags.Name is defined) and (tags.Name|length > 0)
